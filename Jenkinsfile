@@ -1,7 +1,6 @@
 pipeline {
   agent any
   environment {
-    DOCKERHUB_CREDENTIALS = 'dockerhub-lakhanyawa157'
     IMAGE_NAME = 'lakhanyawa157/demo1-java-app'
     IMAGE_TAG = "${env.BUILD_NUMBER}"
   }
@@ -20,7 +19,8 @@ pipeline {
       steps {
         script {
           def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-          docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
+          withCredentials([usernamePassword(credentialsId: 'dockerhub-lakhanyawa157', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
             appImage.push()
             appImage.push('latest')  // Optional: tag latest
           }
