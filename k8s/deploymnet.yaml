@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-helloworld-deployment
+  namespace: springboot-helloworld
+  labels:
+    app: springboot-helloworld-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-helloworld-app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: springboot-helloworld-app
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: springboot-helloworld-app
+        image: andriibondarua/spring-boot-helloworld:0.0.1
+        ports:
+        - name: springboot-http
+          containerPort: 8080
