@@ -1,48 +1,35 @@
 pipeline {
-  agent any
-  environment {
-    IMAGE_NAME = 'lakhanyawa157/demo1-java-app'
-    IMAGE_TAG = "${env.BUILD_NUMBER}"
-  }
-  stages {
-    stage('Checkout Source') {
-      steps {
-        git url: 'https://github.com/lakhanyawa157/demo1-java-app.git'
-      }
+    agent any
+    environment {
+        IMAGE_NAME = 'lakhanyawa157/demo1-java-app'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
-    stage('Build .jar') {
-      steps {
-        sh 'mvn clean package -DskipTests'
-      }
-    }
-    stage('Build & Push Docker Image') {
-      steps {
-        script {
-          def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-          withCredentials([usernamePassword(credentialsId: 'dockerhub-lakhanyawa157', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-            appImage.push()
-            appImage.push('latest')  // Optional: tag latest
-          }
+    stages {
+        stage('Build .jar') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
         }
-      }
-    }
-    stage('Deploy to Kubernetes') {
-      steps {
-        withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-          sh "kubectl set image deployment/demo1-java-app demo1-java-app=${IMAGE_NAME}:${IMAGE_TAG}"
-          sh "kubectl rollout status deployment/demo1-java-app"
+        stage('Build & Push Docker Image') {
+            steps {
+                script {
+                    def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                    withCredentials([usernamePassword(credentialsId: 'lakhanyawa157', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                        appImage.push()
+                        appImage.push('latest')  // Optional: tag latest
+                    }
+                }
+            }
         }
-      }
     }
-  }
-  post {
-    success {
-      echo "Deployment succeeded: ${IMAGE_NAME}:${IMAGE_TAG}"
+    post {
+        success {
+            echo "Deployment succeeded: ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "Deployment failed."
+        }
     }
-    failure {
-      echo "Deployment failed."
-    }
-  }
 }
 
