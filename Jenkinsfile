@@ -20,7 +20,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'lakhanyawa157', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
                         appImage.push()
-                        appImage.push('latest')  // Optional: tag latest
+                        appImage.push('latest')
                     }
                 }
             }
