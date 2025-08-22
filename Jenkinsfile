@@ -4,7 +4,7 @@ pipeline {
         maven 'Maven 3.9.11'  
     }
     environment {
-        JAR_NAME = 'demo1-java-app-1.0-SNAPSHOT.jar'  
+        JAR_NAME = 'hello-world-0.0.1-SNAPSHOT.jar'
     }
     stages {
         stage('Checkout') {
