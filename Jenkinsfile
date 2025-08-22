@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Checkout Source') {
       steps {
-        git url: 'https://github.com/lakhanyawa157/demo1-java-app.git', credentialsId: 'github-lakhanyawa157'
+        git url: 'https://github.com/lakhanyawa157/demo1-java-app.git'
       }
     }
     stage('Build .jar') {
