@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven 3.9.11'
+    }
     environment {
         IMAGE_NAME = 'lakhanyawa157/demo1-java-app'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
