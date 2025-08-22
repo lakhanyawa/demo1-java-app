@@ -1,34 +1,32 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven 3.9.11'
+        maven 'Maven 3.9.11'  
     }
     environment {
-        IMAGE_NAME = 'lakhanyawa157/demo1-java-app'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        JAR_NAME = 'demo1-java-app-1.0-SNAPSHOT.jar'  
     }
     stages {
-        stage('Build .jar') {
+        stage('Checkout') {
+            steps {
+                // Git repository se code checkout karein
+                git url: 'https://github.com/lakhanyawa/demo1-java-app.git', branch: 'main'
+            }
+        }
+        stage('Build JAR') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
-        stage('Build & Push Docker Image') {
+        stage('Run Application') {
             steps {
-                script {
-                    def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                    withCredentials([usernamePassword(credentialsId: 'lakhanyawa157', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                        appImage.push()
-                        appImage.push('latest')
-                    }
-                }
+                sh "java -jar target/${JAR_NAME}"
             }
         }
     }
     post {
         success {
-            echo "Deployment succeeded: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "Deployment successful!"
         }
         failure {
             echo "Deployment failed."
